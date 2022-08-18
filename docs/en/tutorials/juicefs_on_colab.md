@@ -69,7 +69,7 @@ connection and access to your Google Cloud resources.
 
 In this example I am doing this on my local machine. Firstly you can use
 `gcloud auth application-default login` to get a local credential ready or you can also
-use `GOOGLE_APPLICATION_CREDENTIALS` to setup as json key file.
+use `GOOGLE_APPLICATION_CREDENTIALS` to set up as json key file.
 
 Then you can use [`cloud_sql_proxy`](https://cloud.google.com/sql/docs/mysql/connect-admin-proxy) to open a port (in
 this case 5432) locally so to expose your cloud Postgres service to your local machine:
