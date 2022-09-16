@@ -2179,7 +2179,10 @@ func (m *kvMeta) DumpMeta(w io.Writer, root Ino) (err error) {
 			if err = m.txn(func(tx kvTxn) error {
 				used := parseCounter(tx.get(m.counterKey(usedSpace)))
 				inodeTotal := parseCounter(tx.get(m.counterKey(totalInodes)))
-				guessKeyTotal := int64(math.Ceil((float64(used/inodeTotal/(64*1024*1024)) + float64(3)) * float64(inodeTotal)))
+				var guessKeyTotal int64 = 3 // setting, nextInode, nextChunk
+				if inodeTotal > 0 {
+					guessKeyTotal += int64(math.Ceil((float64(used/inodeTotal/(64*1024*1024)) + float64(3)) * float64(inodeTotal)))
+				}
 				progress, bar := utils.NewDynProgressBar("Make snap progress: ", false)
 				bar.SetTotal(guessKeyTotal, false)
 				threshold := 0.1
