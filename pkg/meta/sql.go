@@ -220,6 +220,9 @@ func newSQLMeta(driver, addr string, conf *Config) (Meta, error) {
 		engine.SetSchema(searchPath)
 	}
 	engine.DB().SetMaxIdleConns(runtime.GOMAXPROCS(-1) * 2)
+	if driver == "sqlite3" {
+		engine.DB().SetMaxOpenConns(1)
+	}
 	engine.DB().SetConnMaxIdleTime(time.Minute * 5)
 	engine.SetTableMapper(names.NewPrefixMapper(engine.GetTableMapper(), "jfs_"))
 	m := &dbMeta{
