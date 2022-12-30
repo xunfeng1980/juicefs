@@ -724,6 +724,13 @@ class JuicefsMachine(RuleBasedStateMachine):
         proc=subprocess.Popen(options)
         time.sleep(2.0)
         subprocess.Popen.kill(proc)
+        output = subprocess.run([juicefs, 'status', JuicefsMachine.META_URL], check=True, stdout=subprocess.PIPE).stdout.decode()
+        if 'get timestamp too slow' in output: 
+            # remove the first line caust it is tikv log message
+            output = '\n'.join(output.split('\n')[1:]) 
+        print(f'status output: {output}')
+        if '"MountPoint": "s3gateway"' in output:
+            raise Exception("s3gateway should not in session")
         print('gateway succeed')
 
 
@@ -742,6 +749,13 @@ class JuicefsMachine(RuleBasedStateMachine):
         proc = subprocess.Popen(options)
         time.sleep(2.0)
         subprocess.Popen.kill(proc)
+        output = subprocess.run([juicefs, 'status', JuicefsMachine.META_URL], check=True, stdout=subprocess.PIPE).stdout.decode()
+        if 'get timestamp too slow' in output: 
+            # remove the first line caust it is tikv log message
+            output = '\n'.join(output.split('\n')[1:]) 
+        print(f'status output: {output}')
+        if '"MountPoint": "webdav"' in output:
+            raise Exception("webdav should not in session")
         print('webdav succeed')
 
     def greater_than_version_formatted(self, ver):
