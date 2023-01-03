@@ -89,7 +89,7 @@ jobs:
       - name: Install minio
         run: |
           pwd
-          curl  https://repo.jenkins-ci.org/releases/com/sun/winsw/winsw/2.9.0/winsw-2.9.0-bin.exe  -o minio-service.exe
+          curl  https://repo.jenkins-ci.org/releases/com/sun/winsw/winsw/2.9.0/winsw-2.9.0-net461.exe  -o minio-service.exe
           mkdir "C:\tmp"
           echo  "<service>"   >> minio-service.xml
           echo  "<id>MinIO</id>"  >> minio-service.xml
