@@ -83,11 +83,12 @@ jobs:
           scoop
           scoop install curl
           scoop install runasti
+          scoop install minio@2021-12-10T23-03-39Z
+          scoop install redis
 
       - name: Install minio
         run: |
           pwd
-          scoop install minio@2021-12-10T23-03-39Z
           curl  https://repo.jenkins-ci.org/releases/com/sun/winsw/winsw/2.9.0/winsw-2.9.0-bin.exe  -o minio-service.exe
           mkdir "C:\tmp"
           echo  "<service>"   >> minio-service.xml
@@ -104,7 +105,7 @@ jobs:
       - name: Install redis
         run: |
           pwd
-          scoop install redis
+          
           curl  https://repo.jenkins-ci.org/releases/com/sun/winsw/winsw/2.9.0/winsw-2.9.0-net4.exe -o redis-service.exe
           echo  "<service>"   >> redis-service.xml
           echo  "<id>redisredis</id>"  >> redis-service.xml
