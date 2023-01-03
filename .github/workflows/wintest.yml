@@ -32,7 +32,6 @@ jobs:
         with:
           fetch-depth: 1
 
-
       - name: Setup MSBuild.exe
         uses: microsoft/setup-msbuild@v1.0.3
 
@@ -63,8 +62,6 @@ jobs:
         run: |
           msiexec.exe /i "C:\wfsp\winfsp.msi" /qn /norestart INSTALLLEVEL=1000
 
-
-
       - name: Set up Include Headers
         run: |
           mkdir "C:\WinFsp\inc\fuse"
@@ -88,16 +85,9 @@ jobs:
           scoop install redis
           scoop install minio@2021-12-10T23-03-39Z
           scoop install runasti
-          curl  https://repo.jenkins-ci.org/releases/com/sun/winsw/winsw/2.9.0/winsw-2.9.0-net4.exe -o redis-service.exe
-          echo  "<service>"   >> redis-service.xml
-          echo  "<id>redisredis</id>"  >> redis-service.xml
-          echo  "<name>redisredis</name>"  >> redis-service.xml
-          echo  "<description>redisredis</description>"  >> redis-service.xml
-          echo  "<executable>C:\Users\$env:USERNAME\scoop\shims\redis-server.exe</executable>"  >> redis-service.xml
-          echo  "<logmode>rotate</logmode>"  >> redis-service.xml
-          echo  "</service>"  >> redis-service.xml
-          .\redis-service.exe install
-          net start redisredis
+
+      - name: Install minio
+        run: |
           curl  https://repo.jenkins-ci.org/releases/com/sun/winsw/winsw/2.9.0/winsw-2.9.0-net4.exe -o minio-service.exe
           mkdir "C:\tmp"
           echo  "<service>"   >> minio-service.xml
@@ -109,7 +99,20 @@ jobs:
           echo  "<logmode>rotate</logmode>"  >> minio-service.xml
           echo  "</service>"  >> minio-service.xml
           .\minio-service.exe install
-          net start MinIO
+          net start MinIO      
+
+      - name: Install redis
+        run: |
+          curl  https://repo.jenkins-ci.org/releases/com/sun/winsw/winsw/2.9.0/winsw-2.9.0-net4.exe -o redis-service.exe
+          echo  "<service>"   >> redis-service.xml
+          echo  "<id>redisredis</id>"  >> redis-service.xml
+          echo  "<name>redisredis</name>"  >> redis-service.xml
+          echo  "<description>redisredis</description>"  >> redis-service.xml
+          echo  "<executable>C:\Users\$env:USERNAME\scoop\shims\redis-server.exe</executable>"  >> redis-service.xml
+          echo  "<logmode>rotate</logmode>"  >> redis-service.xml
+          echo  "</service>"  >> redis-service.xml
+          .\redis-service.exe install
+          net start redisredis
 
       - uses: actions/cache@v3
         with:
