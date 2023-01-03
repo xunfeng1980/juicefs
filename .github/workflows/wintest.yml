@@ -99,7 +99,8 @@ jobs:
           echo  "<arguments>server C:\tmp</arguments>"  >> minio-service.xml
           echo  "<logmode>rotate</logmode>"  >> minio-service.xml
           echo  "</service>"  >> minio-service.xml
-          .\minio-service.exe install
+          .\minio-service.exe status minio-service.xml
+          .\minio-service.exe install minio-service.xml
           net start MinIO      
 
       - name: Install redis
