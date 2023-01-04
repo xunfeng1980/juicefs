@@ -88,7 +88,8 @@ jobs:
           scoop install redis
           scoop install minio@2021-12-10T23-03-39Z
           scoop install runasti
-          curl  https://repo.jenkins-ci.org/releases/com/sun/winsw/winsw/2.9.0/winsw-2.9.0-net4.exe -o redis-service.exe
+          # curl  https://repo.jenkins-ci.org/releases/com/sun/winsw/winsw/2.9.0/winsw-2.9.0-net4.exe -o redis-service.exe
+          curl https://github.com/winsw/winsw/releases/download/v2.11.0/WinSW.NET4.exe -o redis-service.exe
           echo  "<service>"   >> redis-service.xml
           echo  "<id>redisredis</id>"  >> redis-service.xml
           echo  "<name>redisredis</name>"  >> redis-service.xml
@@ -98,7 +99,8 @@ jobs:
           echo  "</service>"  >> redis-service.xml
           .\redis-service.exe install
           net start redisredis
-          curl  https://repo.jenkins-ci.org/releases/com/sun/winsw/winsw/2.9.0/winsw-2.9.0-net4.exe -o minio-service.exe
+          # curl  https://repo.jenkins-ci.org/releases/com/sun/winsw/winsw/2.9.0/winsw-2.9.0-net4.exe -o minio-service.exe
+          curl https://github.com/winsw/winsw/releases/download/v2.11.0/WinSW.NET4.exe -o minio-service.exe
           mkdir "C:\tmp"
           echo  "<service>"   >> minio-service.xml
           echo  "<id>MinIO</id>"  >> minio-service.xml
@@ -175,3 +177,7 @@ jobs:
       #    msbuild.exe winfstest.sln
       #    cd TestSuite
       #    .\run-winfstest
+
+      - name: Setup tmate session
+        if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
