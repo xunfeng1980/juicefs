@@ -120,7 +120,7 @@ spec:
           labelSelectors:
             app: redis-server
         delay:
-          latency: '100ms'
+          latency: '10s'
           correlation: '50'
           jitter: '500ms'
     # redis 磁盘读写延迟
