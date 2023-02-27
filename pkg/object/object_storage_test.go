@@ -87,7 +87,7 @@ func testStorage(t *testing.T, s ObjectStorage) {
 		t.Logf("PUT testEncodeFile failed: %s", err.Error())
 	} else {
 		if resp, err := s.List("", "测试编码文件", "", 1); err != nil || (len(resp) == 1 && resp[0].Key() != key) {
-			t.Logf("List testEncodeFile Failed %s", err)
+			t.Fatalf("List testEncodeFile Failed %s", err)
 		}
 	}
 	_ = s.Delete(key)
@@ -105,21 +105,34 @@ func testStorage(t *testing.T, s ObjectStorage) {
 		t.Fatalf("PUT failed: %s", err.Error())
 	}
 
+	// get all
 	if d, e := get(s, "test", 0, -1); d != "hello" {
 		t.Fatalf("expect hello, but got %v, error: %s", d, e)
 	}
-	if d, e := get(s, "test", 2, -1); d != "llo" {
-		t.Logf("expect llo, but got %v, error: %s", d, e)
+	if d, e := get(s, "test", 0, 5); d != "hello" {
+		t.Fatalf("expect hello, but got %v, error: %s", d, e)
 	}
+	// get first
+	if d, e := get(s, "test", 0, 1); d != "h" {
+		t.Fatalf("expect h, but got %v, error: %s", d, e)
+	}
+	// get last
+	if d, e := get(s, "test", 4, 1); d != "o" {
+		t.Fatalf("expect o, but got %v, error: %s", d, e)
+	}
+	// get last 3
 	if d, e := get(s, "test", 2, 3); d != "llo" {
 		t.Fatalf("expect llo, but got %v, error: %s", d, e)
 	}
+	// get middle
 	if d, e := get(s, "test", 2, 2); d != "ll" {
 		t.Fatalf("expect ll, but got %v, error: %s", d, e)
 	}
+	// get the end out of range
 	if d, e := get(s, "test", 4, 2); d != "o" {
 		t.Logf("out-of-range get: 'o', but got %v, error: %s", len(d), e)
 	}
+	// get the off out of range
 	if d, e := get(s, "test", 6, 2); d != "" {
 		t.Logf("out-of-range get: '', but got %v, error: %s", len(d), e)
 	}

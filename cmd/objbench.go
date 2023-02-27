@@ -678,8 +678,37 @@ func functionalTesting(blob object.ObjectStorage, result *[][]string, colorful b
 			return fmt.Errorf("put object failed: %s", err)
 		}
 		defer blob.Delete(key) //nolint:errcheck
-		if s, err := get(blob, key, 0, -1); err != nil && s != string(br) {
-			return fmt.Errorf("get object failed: %s", err)
+
+		// get all
+		if s, err := get(blob, key, 0, -1); err != nil && s != "hello" {
+			return fmt.Errorf(`get object failed, expect "hello", but got %q, error: %s`, s, err)
+		}
+		if s, err := get(blob, key, 0, 5); err != nil && s != "hello" {
+			return fmt.Errorf(`get object failed, expect "hello", but got %q, error: %s`, s, err)
+		}
+		// get first
+		if s, err := get(blob, key, 0, 1); err != nil && s != "h" {
+			return fmt.Errorf(`get object failed, expect "h", but got %q, error: %s`, s, err)
+		}
+		// get last
+		if s, err := get(blob, key, 4, 1); err != nil && s != "o" {
+			return fmt.Errorf(`get object failed, expect "o", but got %q, error: %s`, s, err)
+		}
+		// get last 3
+		if s, err := get(blob, key, 2, 3); err != nil && s != "llo" {
+			return fmt.Errorf(`get object failed, expect "llo", but got %q, error: %s`, s, err)
+		}
+		// get middle
+		if s, err := get(blob, key, 2, 2); err != nil && s != "ll" {
+			return fmt.Errorf(`get object failed, expect "ll", but got %q, error: %s`, s, err)
+		}
+		// get the end out of range
+		if s, err := get(blob, key, 4, 2); s != "o" {
+			return fmt.Errorf(`out-of-range get expect "o", but got %q, error: %s`, s, err)
+		}
+		// get the off out of range
+		if s, err := get(blob, key, 6, 2); s != "" {
+			return fmt.Errorf(`out-of-range get expect "", but got %q, error: %s`, s, err)
 		}
 		return nil
 	})
@@ -880,6 +909,19 @@ func functionalTesting(blob object.ObjectStorage, result *[][]string, colorful b
 		defer blob.Delete("slash_test_file/") //nolint:errcheck
 		if err := blob.Put("slash_test_file/", bytes.NewReader([]byte{})); err != nil {
 			return fmt.Errorf("put `/` suffixed object failed: %s", err)
+		}
+		return nil
+	})
+
+	runCase("special key test", func(blob object.ObjectStorage) error {
+		key := "测试编码文件" + `{"name":"juicefs"}` + string('\u001F')
+		defer blob.Delete(key) //nolint:errcheck
+		if err := blob.Put(key, bytes.NewReader(nil)); err != nil {
+			return fmt.Errorf("put encode file failed: %s", err)
+		} else {
+			if resp, err := blob.List("", "测试编码文件", "", 1); err != nil || (len(resp) == 1 && resp[0].Key() != key) {
+				return fmt.Errorf("list encode file failed %s", err)
+			}
 		}
 		return nil
 	})
