@@ -103,6 +103,7 @@ func (g *gs) Head(key string) (Object, error) {
 		attrs.Size,
 		attrs.Updated,
 		strings.HasSuffix(key, "/"),
+		map[string]any{},
 	}, nil
 }
 
@@ -155,9 +156,9 @@ func (g *gs) List(prefix, marker, delimiter string, limit int64) ([]Object, erro
 	for i := 0; i < n; i++ {
 		item := entries[i]
 		if delimiter != "" && item.Prefix != "" {
-			objs[i] = &obj{item.Prefix, 0, time.Unix(0, 0), true}
+			objs[i] = &obj{item.Prefix, 0, time.Unix(0, 0), true, map[string]any{}}
 		} else {
-			objs[i] = &obj{item.Name, item.Size, item.Updated, strings.HasSuffix(item.Name, "/")}
+			objs[i] = &obj{item.Name, item.Size, item.Updated, strings.HasSuffix(item.Name, "/"), map[string]any{}}
 		}
 	}
 	if delimiter != "" {

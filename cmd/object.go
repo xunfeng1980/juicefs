@@ -178,12 +178,13 @@ func (o *jObj) Size() int64 {
 	}
 	return o.fi.Size()
 }
-func (o *jObj) Mtime() time.Time  { return o.fi.ModTime() }
-func (o *jObj) IsDir() bool       { return o.fi.IsDir() }
-func (o *jObj) IsSymlink() bool   { return o.fi.IsSymlink() }
-func (o *jObj) Owner() string     { return utils.UserName(o.fi.Uid()) }
-func (o *jObj) Group() string     { return utils.GroupName(o.fi.Gid()) }
-func (o *jObj) Mode() os.FileMode { return o.fi.Mode() }
+func (o *jObj) Mtime() time.Time         { return o.fi.ModTime() }
+func (o *jObj) IsDir() bool              { return o.fi.IsDir() }
+func (o *jObj) IsSymlink() bool          { return o.fi.IsSymlink() }
+func (o *jObj) Owner() string            { return utils.UserName(o.fi.Uid()) }
+func (o *jObj) Group() string            { return utils.GroupName(o.fi.Gid()) }
+func (o *jObj) Mode() os.FileMode        { return o.fi.Mode() }
+func (o *jObj) MetaData() map[string]any { return o.MetaData() }
 
 func (j *juiceFS) Head(key string) (object.Object, error) {
 	fi, eno := j.jfs.Stat(ctx, j.path(key))

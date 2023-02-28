@@ -72,6 +72,7 @@ func (c *b2client) Head(key string) (Object, error) {
 		f.ContentLength,
 		time.Unix(f.UploadTimestamp/1000, 0),
 		strings.HasSuffix(f.Name, "/"),
+		map[string]any{},
 	}, nil
 }
 
@@ -136,6 +137,7 @@ func (c *b2client) List(prefix, marker, delimiter string, limit int64) ([]Object
 			f.ContentLength,
 			time.Unix(f.UploadTimestamp/1000, 0),
 			strings.HasSuffix(f.Name, "/"),
+			map[string]any{},
 		}
 	}
 	c.nextMarker = resp.NextFileName

@@ -77,6 +77,7 @@ func (s *ks3) Head(key string) (Object, error) {
 		*r.ContentLength,
 		*r.LastModified,
 		strings.HasSuffix(key, "/"),
+		map[string]any{},
 	}, nil
 }
 
@@ -163,7 +164,7 @@ func (s *ks3) List(prefix, marker, delimiter string, limit int64) ([]Object, err
 		if err != nil {
 			return nil, errors.WithMessagef(err, "failed to decode key %s", *o.Key)
 		}
-		objs[i] = &obj{oKey, *o.Size, *o.LastModified, strings.HasSuffix(oKey, "/")}
+		objs[i] = &obj{oKey, *o.Size, *o.LastModified, strings.HasSuffix(oKey, "/"), map[string]any{}}
 	}
 	if delimiter != "" {
 		for _, p := range resp.CommonPrefixes {
@@ -171,7 +172,7 @@ func (s *ks3) List(prefix, marker, delimiter string, limit int64) ([]Object, err
 			if err != nil {
 				return nil, errors.WithMessagef(err, "failed to decode commonPrefixes %s", *p.Prefix)
 			}
-			objs = append(objs, &obj{prefix, 0, time.Unix(0, 0), true})
+			objs = append(objs, &obj{prefix, 0, time.Unix(0, 0), true, map[string]any{}})
 		}
 		sort.Slice(objs, func(i, j int) bool { return objs[i].Key() < objs[j].Key() })
 	}

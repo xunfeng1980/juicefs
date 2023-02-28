@@ -88,6 +88,7 @@ func (o *ossClient) Head(key string) (Object, error) {
 		size,
 		mtime,
 		strings.HasSuffix(key, "/"),
+		map[string]any{},
 	}, nil
 }
 
@@ -141,11 +142,11 @@ func (o *ossClient) List(prefix, marker, delimiter string, limit int64) ([]Objec
 	objs := make([]Object, n)
 	for i := 0; i < n; i++ {
 		o := result.Objects[i]
-		objs[i] = &obj{o.Key, o.Size, o.LastModified, strings.HasSuffix(o.Key, "/")}
+		objs[i] = &obj{o.Key, o.Size, o.LastModified, strings.HasSuffix(o.Key, "/"), map[string]any{}}
 	}
 	if delimiter != "" {
 		for _, o := range result.CommonPrefixes {
-			objs = append(objs, &obj{o, 0, time.Unix(0, 0), true})
+			objs = append(objs, &obj{o, 0, time.Unix(0, 0), true, map[string]any{}})
 		}
 		sort.Slice(objs, func(i, j int) bool { return objs[i].Key() < objs[j].Key() })
 	}

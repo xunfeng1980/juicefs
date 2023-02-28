@@ -22,6 +22,7 @@ package object
 import (
 	"bytes"
 	"fmt"
+	"github.com/juicedata/juicefs/pkg/consts"
 	"io"
 	"net/http"
 	"net/url"
@@ -92,11 +93,14 @@ func (s *s3client) Head(key string) (Object, error) {
 		}
 		return nil, err
 	}
+	metadata := map[string]any{}
+	metadata[consts.S3Etag] = *r.ETag
 	return &obj{
 		key,
 		*r.ContentLength,
 		*r.LastModified,
 		strings.HasSuffix(key, "/"),
+		metadata,
 	}, nil
 }
 
@@ -195,11 +199,14 @@ func (s *s3client) List(prefix, marker, delimiter string, limit int64) ([]Object
 		if !strings.HasPrefix(oKey, prefix) || oKey < marker {
 			return nil, fmt.Errorf("found invalid key %s from List, prefix: %s, marker: %s", oKey, prefix, marker)
 		}
+		metadata := map[string]any{}
+		metadata[consts.S3Etag] = *o.ETag
 		objs[i] = &obj{
 			oKey,
 			*o.Size,
 			*o.LastModified,
 			strings.HasSuffix(oKey, "/"),
+			metadata,
 		}
 	}
 	if delimiter != "" {
@@ -208,7 +215,7 @@ func (s *s3client) List(prefix, marker, delimiter string, limit int64) ([]Object
 			if err != nil {
 				return nil, errors.WithMessagef(err, "failed to decode commonPrefixes %s", *p.Prefix)
 			}
-			objs = append(objs, &obj{prefix, 0, time.Unix(0, 0), true})
+			objs = append(objs, &obj{prefix, 0, time.Unix(0, 0), true, map[string]any{}})
 		}
 		sort.Slice(objs, func(i, j int) bool { return objs[i].Key() < objs[j].Key() })
 	}

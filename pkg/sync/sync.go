@@ -20,6 +20,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/juicedata/juicefs/pkg/consts"
+	"github.com/pkg/xattr"
 	"io"
 	"os"
 	"path"
@@ -325,7 +327,7 @@ func checkSum(src, dst object.ObjectStorage, key string, size int64) (bool, erro
 	return equal, err
 }
 
-func doCopySingle(src, dst object.ObjectStorage, key string, size int64) error {
+func doCopySingle(src, dst object.ObjectStorage, key string, size int64, metadata map[string]any) error {
 	if size > maxBlock && !strings.HasPrefix(src.String(), "file://") && !strings.HasPrefix(src.String(), "hdfs://") {
 		var err error
 		var in io.Reader
@@ -347,6 +349,13 @@ func doCopySingle(src, dst object.ObjectStorage, key string, size int64) error {
 			if _, err = io.CopyBuffer(struct{ io.Writer }{f}, downer, *buf); err == nil {
 				_, err = f.Seek(0, 0)
 				in = f
+				if metadata[consts.S3Etag] != nil {
+					// path, consts.S3Etag, etag, 0
+					if err := xattr.Set(f.Name(), consts.S3Etag, []byte(metadata[consts.S3Etag].(string))); err != nil {
+						logger.Error(err)
+					}
+				}
+
 			}
 		}
 		if err == nil {
@@ -466,17 +475,17 @@ func doCopyMultiple(src, dst object.ObjectStorage, key string, size int64, uploa
 	return nil
 }
 
-func copyData(src, dst object.ObjectStorage, key string, size int64) error {
+func copyData(src, dst object.ObjectStorage, key string, size int64, metadata map[string]any) error {
 	start := time.Now()
 	var err error
 	if size < maxBlock {
-		err = try(3, func() error { return doCopySingle(src, dst, key, size) })
+		err = try(3, func() error { return doCopySingle(src, dst, key, size, metadata) })
 	} else {
 		var upload *object.MultipartUpload
 		if upload, err = dst.CreateMultipartUpload(key); err == nil {
 			err = doCopyMultiple(src, dst, key, size, upload)
 		} else { // fallback
-			err = try(3, func() error { return doCopySingle(src, dst, key, size) })
+			err = try(3, func() error { return doCopySingle(src, dst, key, size, metadata) })
 		}
 	}
 	if err == nil {
@@ -490,6 +499,7 @@ func copyData(src, dst object.ObjectStorage, key string, size int64) error {
 func worker(tasks <-chan object.Object, src, dst object.ObjectStorage, config *Config) {
 	for obj := range tasks {
 		key := obj.Key()
+		metadata := obj.MetaData()
 		switch obj.Size() {
 		case markDeleteSrc:
 			deleteObj(src, key, config.Dry)
@@ -547,7 +557,7 @@ func worker(tasks <-chan object.Object, src, dst object.ObjectStorage, config *C
 				}
 				logger.Errorf("copy link failed: %s", err)
 			} else {
-				err = copyData(src, dst, key, obj.Size())
+				err = copyData(src, dst, key, obj.Size(), metadata)
 			}
 
 			if err == nil && (config.CheckAll || config.CheckNew) {

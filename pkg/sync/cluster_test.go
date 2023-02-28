@@ -28,13 +28,15 @@ type obj struct {
 	mtime     time.Time
 	isDir     bool
 	isSymlink bool
+	metadata  map[string]any
 }
 
-func (o *obj) Key() string      { return o.key }
-func (o *obj) Size() int64      { return o.size }
-func (o *obj) Mtime() time.Time { return o.mtime }
-func (o *obj) IsDir() bool      { return o.isDir }
-func (o *obj) IsSymlink() bool  { return o.isSymlink }
+func (o *obj) Key() string              { return o.key }
+func (o *obj) Size() int64              { return o.size }
+func (o *obj) Mtime() time.Time         { return o.mtime }
+func (o *obj) IsDir() bool              { return o.isDir }
+func (o *obj) IsSymlink() bool          { return o.isSymlink }
+func (o *obj) MetaData() map[string]any { return o.metadata }
 
 func TestCluster(t *testing.T) {
 	// manager

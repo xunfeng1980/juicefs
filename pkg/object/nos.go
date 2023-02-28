@@ -69,6 +69,7 @@ func (s *nos) Head(key string) (Object, error) {
 		r.ContentLength,
 		mtime,
 		strings.HasSuffix(key, "/"),
+		map[string]any{},
 	}, nil
 }
 
@@ -150,11 +151,11 @@ func (s *nos) List(prefix, marker, delimiter string, limit int64) ([]Object, err
 		if err == nil {
 			mtime = mtime.Add(-8 * time.Hour)
 		}
-		objs[i] = &obj{o.Key, o.Size, mtime, strings.HasSuffix(o.Key, "/")}
+		objs[i] = &obj{o.Key, o.Size, mtime, strings.HasSuffix(o.Key, "/"), map[string]any{}}
 	}
 	if delimiter != "" {
 		for _, p := range resp.CommonPrefixes {
-			objs = append(objs, &obj{p.Prefix, 0, time.Unix(0, 0), true})
+			objs = append(objs, &obj{p.Prefix, 0, time.Unix(0, 0), true, map[string]any{}})
 		}
 		sort.Slice(objs, func(i, j int) bool { return objs[i].Key() < objs[j].Key() })
 	}

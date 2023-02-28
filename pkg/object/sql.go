@@ -122,6 +122,7 @@ func (s *sqlStore) Head(key string) (Object, error) {
 		b.Size,
 		b.Modified,
 		strings.HasSuffix(key, "/"),
+		map[string]any{},
 	}, nil
 }
 

@@ -311,7 +311,7 @@ func sortFIsByName(fis []os.FileInfo) {
 func fileInfo(key string, fi os.FileInfo) Object {
 	owner, group := getOwnerGroup(fi)
 	f := &file{
-		obj{key, fi.Size(), fi.ModTime(), fi.IsDir()},
+		obj{key, fi.Size(), fi.ModTime(), fi.IsDir(), map[string]any{}},
 		owner,
 		group,
 		fi.Mode(),
